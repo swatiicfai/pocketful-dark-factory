@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  pocketful:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - DB_PATH=/data/pocketful.db
+    volumes:
+      - pocketful_data:/data
+    # Hackathon requirement: no outbound network at runtime
+    network_mode: bridge
+
+volumes:
+  pocketful_data:

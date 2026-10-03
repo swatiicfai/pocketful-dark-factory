@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pocketful - Wallet & Payments</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg-primary: #0f0f1a;
+            --bg-secondary: #1a1a2e;
+            --bg-card: #16213e;
+            --bg-card-hover: #1c2a4a;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0c0;
+            --accent: #7c3aed;
+            --accent-light: #a78bfa;
+            --accent-gradient: linear-gradient(135deg, #7c3aed, #2563eb);
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --border: #2a2a4a;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+        
+        /* Navigation */
+        .navbar {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            cursor: pointer;
+        }
+        
+        .nav-user {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .nav-user .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--accent-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.875rem;
+        }
+        
+        .nav-user .name {
+            font-weight: 500;
+        }
+        
+        .btn-logout {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 0.4rem 0.8rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+        
+        .btn-logout:hover {
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+        
+        /* Main Container */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+        
+        /* Cards */
+        .card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(124, 58, 237, 0.1);
+        }
+        
+        /* Balance Card */
+        .balance-card {
+            background: var(--accent-gradient);
+            text-align: center;
+            padding: 2.5rem;
+            border: none;
+        }
+        
+        .balance-card:hover { transform: none; }
+        
+        .balance-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 0.5rem;
+        }
+        
+        .balance-amount {
+            font-size: 3rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+        
+        .balance-amount .currency { font-size: 1.8rem; opacity: 0.9; }
+        
+        /* Action Buttons */
+        .actions {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .action-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.2rem;
+            cursor: pointer;
+            text-align: center;
+            color: var(--text-primary);
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .action-btn:hover {
+            border-color: var(--accent);
+            background: var(--bg-card-hover);
+        }
+        
+        .action-btn .icon { font-size: 1.5rem; }
+        .action-btn .label { font-size: 0.85rem; font-weight: 500; }
+        
+        /* Forms */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.4rem;
+            font-weight: 500;
+        }
+        
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            transition: border-color 0.2s;
+        }
+        
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        .form-group input::placeholder {
+            color: #4a4a6a;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 0.85rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: var(--accent-gradient);
+            color: white;
+        }
+        
+        .btn-primary:hover { opacity: 0.9; transform: scale(1.01); }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+        
+        .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+        
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+            padding: 0.4rem 0.8rem;
+            font-size: 0.75rem;
+            width: auto;
+            border-radius: 6px;
+        }
+        
+        /* Transaction List */
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .tx-list { list-style: none; }
+        
+        .tx-item {
+            display: flex;
+            align-items: center;
+            padding: 0.9rem 0;
+            border-bottom: 1px solid var(--border);
+            gap: 1rem;
+        }
+        
+        .tx-item:last-child { border-bottom: none; }
+        
+        .tx-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+        
+        .tx-icon.credit { background: rgba(16, 185, 129, 0.15); }
+        .tx-icon.debit { background: rgba(239, 68, 68, 0.15); }
+        .tx-icon.refund { background: rgba(245, 158, 11, 0.15); }
+        
+        .tx-details { flex: 1; }
+        .tx-details .tx-name { font-weight: 500; font-size: 0.9rem; }
+        .tx-details .tx-date { font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px; }
+        
+        .tx-amount { font-weight: 600; font-size: 0.95rem; text-align: right; }
+        .tx-amount.credit { color: var(--success); }
+        .tx-amount.debit { color: var(--danger); }
+        .tx-amount.refund { color: var(--warning); }
+        
+        .tx-refund-btn {
+            margin-top: 4px;
+        }
+        
+        /* Users List */
+        .user-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.2s;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .user-item:hover { background: var(--bg-card-hover); }
+        
+        .user-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: var(--accent-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+        
+        .user-info { flex: 1; }
+        .user-info .uname { font-weight: 500; font-size: 0.9rem; }
+        .user-info .uemail { font-size: 0.75rem; color: var(--text-secondary); }
+        
+        /* View management */
+        .view { display: none; }
+        .view.active { display: block; }
+        
+        /* Alerts */
+        .alert {
+            padding: 0.85rem 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .alert-success { background: rgba(16, 185, 129, 0.15); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.3); }
+        .alert-error { background: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); }
+        
+        /* Back button */
+        .back-btn {
+            background: none;
+            border: none;
+            color: var(--accent-light);
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-family: 'Inter', sans-serif;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        
+        .back-btn:hover { color: var(--accent); }
+        
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        /* Empty state */
+        .empty { text-align: center; padding: 2rem; color: var(--text-secondary); font-size: 0.9rem; }
+        
+        /* Responsive */
+        @media (max-width: 600px) {
+            .container { padding: 1rem 0.75rem; }
+            .balance-amount { font-size: 2.2rem; }
+            .actions { grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+            .action-btn { padding: 0.8rem 0.5rem; }
+            .navbar { padding: 0.75rem 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar" id="navbar" style="display:none;">
+    <div class="logo" onclick="showView('dashboard')">💜 Pocketful</div>
+    <div class="nav-user">
+        <div class="avatar" id="navAvatar"></div>
+        <span class="name" id="navName"></span>
+        <button class="btn-logout" onclick="logout()">Switch</button>
+    </div>
+</nav>
+
+<div class="container">
+    <!-- ==================== LOGIN VIEW ==================== -->
+    <div class="view active" id="view-login">
+        <div style="text-align:center; margin: 3rem 0 2rem;">
+            <div style="font-size:3rem; margin-bottom:1rem;">💜</div>
+            <h1 style="font-size:2rem; font-weight:800; margin-bottom:0.5rem;">Pocketful</h1>
+            <p style="color:var(--text-secondary);">Your wallet. Your way.</p>
+        </div>
+        
+        <div class="card">
+            <h3 style="margin-bottom:1.25rem;">Create Account</h3>
+            <div id="login-alert"></div>
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" id="reg-name" placeholder="Swati Gupta">
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="reg-email" placeholder="swati@example.com">
+            </div>
+            <button class="btn btn-primary" onclick="createAccount()">Create Account</button>
+        </div>
+        
+        <div class="card" id="existing-users-card">
+            <h3 style="margin-bottom:1rem;">Or select existing account</h3>
+            <div id="user-list-login"></div>
+        </div>
+    </div>
+
+    <!-- ==================== DASHBOARD VIEW ==================== -->
+    <div class="view" id="view-dashboard">
+        <div class="balance-card card">
+            <div class="balance-label">Available Balance</div>
+            <div class="balance-amount">
+                <span class="currency">$</span><span id="balance">0.00</span>
+            </div>
+        </div>
+        
+        <div class="actions">
+            <button class="action-btn" onclick="showView('send')">
+                <span class="icon">📤</span>
+                <span class="label">Send</span>
+            </button>
+            <button class="action-btn" onclick="showView('deposit')">
+                <span class="icon">💰</span>
+                <span class="label">Deposit</span>
+            </button>
+            <button class="action-btn" onclick="showView('history')">
+                <span class="icon">📋</span>
+                <span class="label">History</span>
+            </button>
+        </div>
+        
+        <div class="card">
+            <div class="section-title">
+                <span>Recent Transactions</span>
+                <button class="btn-secondary" style="width:auto; padding:0.3rem 0.8rem; font-size:0.75rem;" onclick="showView('history')">View All</button>
+            </div>
+            <div id="recent-tx">
+                <div class="empty">No transactions yet. Make a deposit to get started!</div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="section-title"><span>People</span></div>
+            <div id="people-list">
+                <div class="empty">No other users yet.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== SEND VIEW ==================== -->
+    <div class="view" id="view-send">
+        <button class="back-btn" onclick="showView('dashboard')">← Back</button>
+        <div class="card">
+            <h3 style="margin-bottom:1.25rem;">📤 Send Money</h3>
+            <div id="send-alert"></div>
+            <div class="form-group">
+                <label>Recipient</label>
+                <select id="send-recipient">
+                    <option value="">Select a person...</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Amount ($)</label>
+                <input type="number" id="send-amount" placeholder="0.00" step="0.01" min="0.01">
+            </div>
+            <div class="form-group">
+                <label>Note (optional)</label>
+                <input type="text" id="send-note" placeholder="Lunch money 🍕">
+            </div>
+            <button class="btn btn-primary" onclick="sendMoney()">Send Money</button>
+        </div>
+    </div>
+
+    <!-- ==================== DEPOSIT VIEW ==================== -->
+    <div class="view" id="view-deposit">
+        <button class="back-btn" onclick="showView('dashboard')">← Back</button>
+        <div class="card">
+            <h3 style="margin-bottom:1.25rem;">💰 Deposit Money</h3>
+            <div id="deposit-alert"></div>
+            <div class="form-group">
+                <label>Amount ($)</label>
+                <input type="number" id="deposit-amount" placeholder="0.00" step="0.01" min="0.01">
+            </div>
+            <button class="btn btn-primary" onclick="depositMoney()">Deposit</button>
+        </div>
+    </div>
+
+    <!-- ==================== HISTORY VIEW ==================== -->
+    <div class="view" id="view-history">
+        <button class="back-btn" onclick="showView('dashboard')">← Back</button>
+        <div class="card">
+            <h3 style="margin-bottom:1.25rem;">📋 Transaction History</h3>
+            <div id="full-tx-list">
+                <div class="loading"><div class="spinner"></div></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// ==================== STATE ====================
+let currentUser = null;
+let allUsers = [];
+
+// ==================== API ====================
+const api = {
+    async get(url) {
+        const res = await fetch(url);
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({ detail: 'Request failed' }));
+            throw new Error(err.detail || 'Request failed');
+        }
+        return res.json();
+    },
+    async post(url, data) {
+        const res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({ detail: 'Request failed' }));
+            throw new Error(err.detail || 'Request failed');
+        }
+        return res.json();
+    }
+};
+
+// ==================== HELPERS ====================
+function showAlert(containerId, message, type = 'error') {
+    const el = document.getElementById(containerId);
+    if (!el) return;
+    el.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+    setTimeout(() => { el.innerHTML = ''; }, 4000);
+}
+
+function getInitials(name) {
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+}
+
+function formatDate(dateStr) {
+    const d = new Date(dateStr + 'Z');
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
+
+function uuid() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+        const r = Math.random() * 16 | 0;
+        return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+    });
+}
+
+// ==================== VIEWS ====================
+function showView(viewName) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    const view = document.getElementById(`view-${viewName}`);
+    if (view) view.classList.add('active');
+    
+    if (viewName === 'dashboard') refreshDashboard();
+    if (viewName === 'send') loadRecipients();
+    if (viewName === 'history') loadFullHistory();
+}
+
+// ==================== AUTH ====================
+async function loadUsers() {
+    try {
+        allUsers = await api.get('/api/users');
+        renderLoginUsers();
+    } catch (e) {
+        console.error('Failed to load users:', e);
+    }
+}
+
+function renderLoginUsers() {
+    const container = document.getElementById('user-list-login');
+    if (!allUsers.length) {
+        container.innerHTML = '<div class="empty">No accounts yet. Create one above!</div>';
+        return;
+    }
+    container.innerHTML = allUsers.map(u => `
+        <div class="user-item" onclick="selectUser(${u.id})">
+            <div class="user-avatar">${getInitials(u.name)}</div>
+            <div class="user-info">
+                <div class="uname">${u.name}</div>
+                <div class="uemail">${u.email}</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+async function createAccount() {
+    const name = document.getElementById('reg-name').value.trim();
+    const email = document.getElementById('reg-email').value.trim();
+    if (!name || !email) {
+        showAlert('login-alert', 'Please fill in all fields');
+        return;
+    }
+    try {
+        const user = await api.post('/api/users', { name, email });
+        showAlert('login-alert', `Account created! Welcome, ${user.name}! 🎉`, 'success');
+        selectUser(user.id);
+    } catch (e) {
+        showAlert('login-alert', e.message);
+    }
+}
+
+async function selectUser(userId) {
+    try {
+        currentUser = await api.get(`/api/users/${userId}`);
+        localStorage.setItem('pocketful_user', JSON.stringify(currentUser));
+        
+        // Update navbar
+        document.getElementById('navbar').style.display = 'flex';
+        document.getElementById('navAvatar').textContent = getInitials(currentUser.name);
+        document.getElementById('navName').textContent = currentUser.name;
+        
+        showView('dashboard');
+    } catch (e) {
+        showAlert('login-alert', 'Failed to load user');
+    }
+}
+
+function logout() {
+    currentUser = null;
+    localStorage.removeItem('pocketful_user');
+    document.getElementById('navbar').style.display = 'none';
+    loadUsers();
+    showView('login');
+}
+
+// ==================== DASHBOARD ====================
+async function refreshDashboard() {
+    if (!currentUser) return;
+    
+    try {
+        // Load balance
+        const bal = await api.get(`/api/wallets/${currentUser.wallet_id}/balance`);
+        document.getElementById('balance').textContent = parseFloat(bal.balance).toFixed(2);
+        
+        // Load recent transactions
+        const txs = await api.get(`/api/wallets/${currentUser.wallet_id}/transactions`);
+        renderTransactions(txs.slice(0, 5), 'recent-tx', false);
+        
+        // Load people
+        allUsers = await api.get('/api/users');
+        renderPeople();
+    } catch (e) {
+        console.error('Dashboard refresh failed:', e);
+    }
+}
+
+function renderPeople() {
+    const others = allUsers.filter(u => u.id !== currentUser.id);
+    const container = document.getElementById('people-list');
+    if (!others.length) {
+        container.innerHTML = '<div class="empty">No other users yet.</div>';
+        return;
+    }
+    container.innerHTML = others.map(u => `
+        <div class="user-item" onclick="quickSend(${u.wallet_id}, '${u.name}')">
+            <div class="user-avatar">${getInitials(u.name)}</div>
+            <div class="user-info">
+                <div class="uname">${u.name}</div>
+                <div class="uemail">${u.email}</div>
+            </div>
+            <span style="color:var(--accent-light); font-size:0.8rem;">Send →</span>
+        </div>
+    `).join('');
+}
+
+function quickSend(walletId, name) {
+    showView('send');
+    setTimeout(() => {
+        document.getElementById('send-recipient').value = walletId;
+    }, 100);
+}
+
+// ==================== TRANSACTIONS ====================
+function renderTransactions(txs, containerId, showRefund = true) {
+    const container = document.getElementById(containerId);
+    if (!txs.length) {
+        container.innerHTML = '<div class="empty">No transactions yet.</div>';
+        return;
+    }
+    
+    const walletId = currentUser.wallet_id;
+    container.innerHTML = '<ul class="tx-list">' + txs.map(tx => {
+        let icon, amountClass, amountPrefix, description;
+        const isDebit = tx.from_wallet_id === walletId && tx.type !== 'DEPOSIT';
+        
+        if (tx.type === 'DEPOSIT') {
+            icon = '💰';
+            amountClass = 'credit';
+            amountPrefix = '+';
+            description = 'Deposit';
+        } else if (tx.type === 'REFUND') {
+            icon = '🔄';
+            amountClass = tx.to_wallet_id === walletId ? 'credit' : 'debit';
+            amountPrefix = tx.to_wallet_id === walletId ? '+' : '-';
+            description = tx.to_wallet_id === walletId ? `Refund from ${tx.from_user}` : `Refund to ${tx.to_user}`;
+        } else if (isDebit) {
+            icon = '📤';
+            amountClass = 'debit';
+            amountPrefix = '-';
+            description = `Sent to ${tx.to_user}`;
+        } else {
+            icon = '📥';
+            amountClass = 'credit';
+            amountPrefix = '+';
+            description = `Received from ${tx.from_user}`;
+        }
+        
+        const refundBtn = (showRefund && tx.type === 'TRANSFER' && isDebit && tx.status !== 'REFUNDED')
+            ? `<div class="tx-refund-btn"><button class="btn btn-danger" onclick="refundTx(${tx.id})">Refund</button></div>`
+            : (tx.status === 'REFUNDED' ? '<div style="font-size:0.7rem;color:var(--warning);margin-top:2px;">Refunded</div>' : '');
+        
+        return `
+            <li class="tx-item">
+                <div class="tx-icon ${amountClass}">${icon}</div>
+                <div class="tx-details">
+                    <div class="tx-name">${description}</div>
+                    <div class="tx-date">${formatDate(tx.created_at)}</div>
+                </div>
+                <div>
+                    <div class="tx-amount ${amountClass}">${amountPrefix}$${parseFloat(tx.amount).toFixed(2)}</div>
+                    ${refundBtn}
+                </div>
+            </li>
+        `;
+    }).join('') + '</ul>';
+}
+
+// ==================== SEND MONEY ====================
+async function loadRecipients() {
+    const select = document.getElementById('send-recipient');
+    allUsers = await api.get('/api/users');
+    const others = allUsers.filter(u => u.id !== currentUser.id);
+    select.innerHTML = '<option value="">Select a person...</option>' +
+        others.map(u => `<option value="${u.wallet_id}">${u.name} (${u.email})</option>`).join('');
+}
+
+async function sendMoney() {
+    const toWallet = parseInt(document.getElementById('send-recipient').value);
+    const amount = document.getElementById('send-amount').value;
+    const note = document.getElementById('send-note').value || 'Transfer';
+    
+    if (!toWallet) { showAlert('send-alert', 'Select a recipient'); return; }
+    if (!amount || parseFloat(amount) <= 0) { showAlert('send-alert', 'Enter a valid amount'); return; }
+    
+    try {
+        await api.post('/api/transfers', {
+            from_wallet_id: currentUser.wallet_id,
+            to_wallet_id: toWallet,
+            amount: parseFloat(amount).toFixed(2),
+            description: note,
+            idempotency_key: uuid()
+        });
+        showAlert('send-alert', `Sent $${parseFloat(amount).toFixed(2)} successfully! 🎉`, 'success');
+        document.getElementById('send-amount').value = '';
+        document.getElementById('send-note').value = '';
+        setTimeout(() => showView('dashboard'), 1500);
+    } catch (e) {
+        showAlert('send-alert', e.message);
+    }
+}
+
+// ==================== DEPOSIT ====================
+async function depositMoney() {
+    const amount = document.getElementById('deposit-amount').value;
+    if (!amount || parseFloat(amount) <= 0) {
+        showAlert('deposit-alert', 'Enter a valid amount');
+        return;
+    }
+    try {
+        await api.post(`/api/wallets/${currentUser.wallet_id}/deposit`, {
+            amount: parseFloat(amount).toFixed(2),
+            description: 'Deposit'
+        });
+        showAlert('deposit-alert', `Deposited $${parseFloat(amount).toFixed(2)} successfully! 💰`, 'success');
+        document.getElementById('deposit-amount').value = '';
+        setTimeout(() => showView('dashboard'), 1500);
+    } catch (e) {
+        showAlert('deposit-alert', e.message);
+    }
+}
+
+// ==================== REFUND ====================
+async function refundTx(transferId) {
+    if (!confirm('Are you sure you want to refund this transfer?')) return;
+    try {
+        await api.post(`/api/transfers/${transferId}/refund`, {});
+        showView('history');
+    } catch (e) {
+        alert('Refund failed: ' + e.message);
+    }
+}
+
+// ==================== HISTORY ====================
+async function loadFullHistory() {
+    try {
+        const txs = await api.get(`/api/wallets/${currentUser.wallet_id}/transactions`);
+        renderTransactions(txs, 'full-tx-list', true);
+    } catch (e) {
+        document.getElementById('full-tx-list').innerHTML = '<div class="empty">Failed to load history</div>';
+    }
+}
+
+// ==================== INIT ====================
+async function init() {
+    const saved = localStorage.getItem('pocketful_user');
+    if (saved) {
+        try {
+            const user = JSON.parse(saved);
+            await selectUser(user.id);
+            return;
+        } catch (e) {
+            localStorage.removeItem('pocketful_user');
+        }
+    }
+    loadUsers();
+}
+
+init();
+</script>
+</body>
+</html>
